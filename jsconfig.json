@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@contexts/*": ["src/contexts/*"],
+      "@components/*": ["src/components/*"],
+      "@util/*": ["src/util/*"],
+      "@styles": ["src/styles/index.js"],
+      "@styles/*": ["src/styles/*"],
+      "@pages/*": ["src/pages/*"],
+      "@assets/*": ["src/assets/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@services/*": ["src/services"]
+    },
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx"
+  },
+  "include": ["src"]
+}

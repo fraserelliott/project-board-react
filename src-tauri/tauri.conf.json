@@ -12,9 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "project-board",
-        "width": 800,
-        "height": 600
+        "title": "Project Board",
+        "width": 1920,
+        "height": 1080,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true
       }
     ],
     "security": {
