@@ -25,7 +25,9 @@ export async function loadProjectsOverview() {
   await info("Loading projects overview...");
   try {
     const contents = await readTextFile("projectsOverview.json", { baseDir });
-    return JSON.parse(contents).sort((a, b) => a.updatedAt - b.updatedAt);
+    return JSON.parse(contents).sort(
+      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+    );
   } catch (err) {
     await error(`Failed to load projects: ${err}`);
     if (String(err).includes("No such file")) {
