@@ -11,8 +11,12 @@ import {
   saveProjectsOverview,
   loadProjectsOverview,
   initialiseStorage,
+  createProject,
+  deleteProject as deleteProjectFile,
 } from "@services/persistenceService";
 import { v4 as uuidv4 } from "uuid";
+import { error as logError } from "@tauri-apps/plugin-log";
+import { useToast } from "@fraserelliott/fe-components";
 
 const ProjectsContext = createContext(undefined);
 
@@ -21,6 +25,7 @@ export function ProjectsProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
+  const { addToastMessage } = useToast();
 
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +41,7 @@ export function ProjectsProvider({ children }) {
         }
       } catch (err) {
         if (!cancelled) {
-          console.error("Failed to load projects:", err);
+          logError(err);
           setProjects([]);
           setLoading(false);
           setError(err);
@@ -56,11 +61,11 @@ export function ProjectsProvider({ children }) {
       .then(() => saveProjectsOverview(projects))
       .catch((err) => {
         // keep the chain alive
-        console.error("Failed to save projects:", err);
+        logError(err);
       });
   }, [projects, loading]);
 
-  const addProject = useCallback((name) => {
+  const addProject = useCallback(async (name) => {
     const project = {
       name,
       id: uuidv4(),
@@ -68,7 +73,13 @@ export function ProjectsProvider({ children }) {
       notes: "",
       status: "NotStarted",
     };
-    setProjects((prev) => [project, ...prev]);
+    try {
+      await createProject(project.id, name);
+      setProjects((prev) => [project, ...prev]);
+    } catch (err) {
+      logError(err);
+      addToastMessage("Error creating project.", "error");
+    }
   }, []);
 
   const updateProject = useCallback((project) => {
@@ -78,8 +89,14 @@ export function ProjectsProvider({ children }) {
     ]);
   }, []);
 
-  const deleteProject = useCallback((id) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+  const deleteProject = useCallback(async (id) => {
+    try {
+      await deleteProjectFile(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      logError(err);
+      addToastMessage("Error deleting project.", "error");
+    }
   }, []);
 
   const isNameValid = useCallback(

@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, searchForWorkspaceRoot } from "vite";
 import react from "@vitejs/plugin-react";
 import process from "node:process";
 const host = process.env.TAURI_DEV_HOST;
@@ -27,6 +27,13 @@ export default defineConfig(() => ({
     watch: {
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
+    },
+    fs: {
+      allow: [
+        searchForWorkspaceRoot(process.cwd()),
+        "/home/fraser/dev/fe-slate",
+        "/home/fraser/dev/fe-components",
+      ],
     },
   },
   resolve: {
