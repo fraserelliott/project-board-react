@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { utilities, sx } from "@fraserelliott/fe-utilities";
 import { NewProjectModal } from "@/components/projects-overview/NewProjectModal";
+import { useNavigate } from "react-router-dom";
 
 export default function ProjectsOverviewPage() {
   const { styleComponent } = useFEStyles();
@@ -34,6 +35,7 @@ export default function ProjectsOverviewPage() {
   const [isValidName, setIsValidName] = useState(null);
   const { addToastMessage } = useToast();
   const [pendingDelete, setPendingDelete] = useState(null);
+  const navigate = useNavigate();
 
   const toggleStatus = (status) => {
     setVisibleStatuses((prev) =>
@@ -58,8 +60,9 @@ export default function ProjectsOverviewPage() {
     </ToggleButton>
   );
 
-  const openProject = () => {
-    // TODO: implement openProject
+  const openProject = (project) => {
+    console.log(`project/${project.id}`);
+    navigate(`project/${project.id}`);
   };
 
   const startEditing = (project) => {
@@ -224,6 +227,36 @@ export default function ProjectsOverviewPage() {
     },
     { field: "edit", label: "Edit", renderItem: renderEditActions },
   ];
+
+  const renderTable = () => {
+    const base = (
+      <ActionTable
+        columns={columns}
+        getKey={(project) => project.id}
+        actions={actions}
+        separateActionColumns
+        showHeadersWhenEmpty
+        items={filteredProjects}
+        styleRow={(item) =>
+          item.status === "Completed"
+            ? {
+                backgroundColor: "rgba(54, 90, 73, 0.6)",
+              }
+            : item.status === "InProgress"
+              ? {
+                  backgroundColor: "#263C56",
+                }
+              : {}
+        }
+      />
+    );
+
+    return editingId ? (
+      <form onSubmit={handleSubmit(saveEdit)}>{base}</form>
+    ) : (
+      base
+    );
+  };
 
   return (
     <>

@@ -41,7 +41,7 @@ export function ProjectsProvider({ children }) {
         }
       } catch (err) {
         if (!cancelled) {
-          logError(err);
+          await logError(err);
           setProjects([]);
           setLoading(false);
           setError(err);
@@ -63,7 +63,7 @@ export function ProjectsProvider({ children }) {
         // keep the chain alive
         logError(err);
       });
-  }, [projects, loading]);
+  }, [projects, loading, error]);
 
   const addProject = useCallback(async (name) => {
     const project = {
@@ -94,7 +94,7 @@ export function ProjectsProvider({ children }) {
       await deleteProjectFile(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      logError(err);
+      await logError(err);
       addToastMessage("Error deleting project.", "error");
     }
   }, []);

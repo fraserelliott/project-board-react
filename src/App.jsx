@@ -3,6 +3,7 @@ import "@fraserelliott/fe-slate/fe-slate.css";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import ProjectsOverviewPage from "./pages/ProjectsOverviewPage";
 import NotesPage from "./pages/NotesPage";
+import ProjectPage from "./pages/ProjectPage";
 import {
   OptionalPortal,
   ToastMessageDisplay,
@@ -15,6 +16,7 @@ export default function App() {
         <main>
           <Routes>
             <Route path="/" element={<ProjectsOverviewPage />} />
+            <Route path="/project/:id" element={<ProjectPage />} />
           </Routes>
         </main>
 
