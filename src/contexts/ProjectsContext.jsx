@@ -17,6 +17,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { error as logError } from "@tauri-apps/plugin-log";
 import { useToast } from "@fraserelliott/fe-components";
+import { isNameFieldValid } from "@/util/dataUtil";
 
 const ProjectsContext = createContext(undefined);
 
@@ -100,39 +101,29 @@ export function ProjectsProvider({ children }) {
   }, []);
 
   const isNameValid = useCallback(
-    (name, excludeId) => {
-      const normalised = name.trim().toUpperCase();
-
-      if (!normalised) {
-        return {
-          valid: false,
-          reason: "Name must contain characters other than whitespace.",
-        };
-      }
-
-      const isDuplicate = projects.some(
-        (p) => p.id !== excludeId && p.name.toUpperCase() === normalised,
-      );
-
-      if (isDuplicate) {
-        return { valid: false, reason: "Name already in use." };
-      }
-
-      return { valid: true };
-    },
+    (name, excludeId) => isNameFieldValid(projects, name, excludeId),
     [projects],
   );
 
   const value = useMemo(
     () => ({
       loading,
+      error,
       projects,
       addProject,
       updateProject,
       deleteProject,
       isNameValid,
     }),
-    [loading, projects, addProject, updateProject, deleteProject, isNameValid],
+    [
+      loading,
+      error,
+      projects,
+      addProject,
+      updateProject,
+      deleteProject,
+      isNameValid,
+    ],
   );
 
   return (

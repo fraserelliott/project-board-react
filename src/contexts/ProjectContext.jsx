@@ -9,11 +9,12 @@ import {
 } from "react";
 import { useToast } from "@fraserelliott/fe-components";
 import {
-  initialiseStorage,
   loadProject as loadProjectFile,
   saveProject,
 } from "@/services/persistenceService";
 import { error as logError } from "@tauri-apps/plugin-log";
+import { v4 as uuidv4 } from "uuid";
+import { isNameFieldValid } from "@/util/dataUtil";
 
 const ProjectContext = createContext(undefined);
 
@@ -58,6 +59,24 @@ export function ProjectProvider({ children }) {
     }
   }, []);
 
+  const addTask = useCallback((name) => {
+    const task = {
+      name,
+      id: uuidv4(),
+      categoryId: null,
+      tagIds: [],
+      status: "NotStarted",
+      dependencyIds: [],
+    };
+    setProject((prev) => ({ ...prev, tasks: [...prev.tasks, task] }));
+    return task.id;
+  }, []);
+
+  const isTaskNameValid = useCallback(
+    (name, excludeId) => isNameFieldValid(project.tasks, name, excludeId),
+    [project?.tasks],
+  );
+
   const getTag = useCallback(
     (tagId) => project?.tags?.find((tag) => tag.id === tagId),
     [project?.tags],
@@ -75,8 +94,26 @@ export function ProjectProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ project, loading, error, loadProject }),
-    [project, loading, error, loadProject, getTag, deleteTag],
+    () => ({
+      loading,
+      error,
+      project,
+      loadProject,
+      addTask,
+      isTaskNameValid,
+      getTag,
+      deleteTag,
+    }),
+    [
+      loading,
+      error,
+      project,
+      loadProject,
+      addTask,
+      isTaskNameValid,
+      getTag,
+      deleteTag,
+    ],
   );
 
   return (

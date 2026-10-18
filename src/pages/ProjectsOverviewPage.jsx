@@ -61,7 +61,6 @@ export default function ProjectsOverviewPage() {
   );
 
   const openProject = (project) => {
-    console.log(`project/${project.id}`);
     navigate(`project/${project.id}`);
   };
 

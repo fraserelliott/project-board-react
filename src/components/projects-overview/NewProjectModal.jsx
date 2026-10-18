@@ -10,12 +10,7 @@ import { useState } from "react";
 import { useProjects } from "@/contexts/ProjectsContext";
 
 export function NewProjectModal({ open, onOpenChange }) {
-  const {
-    register,
-    formState: { isDirty, isSubmitting },
-    handleSubmit,
-    reset,
-  } = useForm();
+  const { register, handleSubmit } = useForm();
   const { styleComponent } = useFEStyles();
   const [isValidName, setIsValidName] = useState(null);
   const { isNameValid, addProject } = useProjects();
