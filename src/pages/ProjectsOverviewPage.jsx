@@ -227,36 +227,6 @@ export default function ProjectsOverviewPage() {
     { field: "edit", label: "Edit", renderItem: renderEditActions },
   ];
 
-  const renderTable = () => {
-    const base = (
-      <ActionTable
-        columns={columns}
-        getKey={(project) => project.id}
-        actions={actions}
-        separateActionColumns
-        showHeadersWhenEmpty
-        items={filteredProjects}
-        styleRow={(item) =>
-          item.status === "Completed"
-            ? {
-                backgroundColor: "rgba(54, 90, 73, 0.6)",
-              }
-            : item.status === "InProgress"
-              ? {
-                  backgroundColor: "#263C56",
-                }
-              : {}
-        }
-      />
-    );
-
-    return editingId ? (
-      <form onSubmit={handleSubmit(saveEdit)}>{base}</form>
-    ) : (
-      base
-    );
-  };
-
   return (
     <>
       {showNewProjectModal && (

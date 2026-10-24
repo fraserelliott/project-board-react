@@ -14,21 +14,26 @@ export async function initialiseStorage() {
   await mkdir("projects", { baseDir, recursive: true });
 }
 
-export async function saveProjectsOverview(projects) {
-  await writeTextFile(
-    "projectsOverview.json",
-    JSON.stringify(projects, null, 2),
-    { baseDir },
-  );
+export async function saveProjectsOverview(data) {
+  await writeTextFile("projectsOverview.json", JSON.stringify(data, null, 2), {
+    baseDir,
+  });
 }
 
 export async function loadProjectsOverview() {
   await info("Loading projects overview...");
   try {
     const contents = await readTextFile("projectsOverview.json", { baseDir });
-    return JSON.parse(contents).sort(
-      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
-    );
+    const parsed = JSON.parse(contents);
+
+    return {
+      projects: parsed.projects.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+      ),
+      notes: parsed.notes.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+      ),
+    };
   } catch (err) {
     await error(`Failed to load projects: ${err}`);
     if (String(err).includes("No such file")) {

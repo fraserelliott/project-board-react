@@ -29,9 +29,9 @@ export default function TagDisplay({ tagIds, showRemoveBtn, onRemove }) {
                 ? [{ label: "Remove", onClick: () => onRemove(tagId) }]
                 : []),
             ]}
+            key={tagId}
           >
             <span
-              key={tagId}
               style={sx(
                 utilities["fe-rounded-2"],
                 utilities["fe-px-2"],

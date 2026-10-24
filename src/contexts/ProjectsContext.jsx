@@ -26,6 +26,7 @@ export function ProjectsProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [notes, setNotes] = useState([]);
   const { addToastMessage } = useToast();
 
   useEffect(() => {
@@ -37,7 +38,8 @@ export function ProjectsProvider({ children }) {
         await initialiseStorage();
         const all = await loadProjectsOverview();
         if (!cancelled) {
-          setProjects(Array.isArray(all) ? all : []);
+          setProjects(all.projects ?? []);
+          setNotes(all.notes ?? []);
           setLoading(false);
         }
       } catch (err) {
@@ -59,12 +61,12 @@ export function ProjectsProvider({ children }) {
     if (loading || error) return;
 
     saveQueue.current = saveQueue.current
-      .then(() => saveProjectsOverview(projects))
+      .then(() => saveProjectsOverview({ projects, notes }))
       .catch((err) => {
         // keep the chain alive
         logError(err);
       });
-  }, [projects, loading, error]);
+  }, [projects, notes, loading, error]);
 
   const addProject = useCallback(async (name) => {
     const project = {
@@ -113,15 +115,45 @@ export function ProjectsProvider({ children }) {
     [projects],
   );
 
+  const isNoteNameValid = useCallback(
+    (name, excludeId) => isNameFieldValid(notes, name, excludeId),
+    [notes],
+  );
+
+  const addNote = useCallback(
+    (name) => {
+      const nameValid = isNoteNameValid(name);
+      if (!nameValid.valid) return null;
+      const note = {
+        name,
+        id: uuidv4(),
+        updatedAt: new Date(),
+        content: "",
+      };
+      setNotes((prev) => [...prev, note]);
+      return note.id;
+    },
+    [isNoteNameValid],
+  );
+
+  const getNote = useCallback(
+    (noteId) => notes?.find((note) => note.id === noteId),
+    [notes],
+  );
+
   const value = useProviderValueMemo({
     loading,
     error,
     projects,
+    notes,
     addProject,
     updateProject,
     updateProjectDate,
     deleteProject,
     isNameValid,
+    isNoteNameValid,
+    addNote,
+    getNote,
   });
 
   return (

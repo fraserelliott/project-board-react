@@ -50,6 +50,7 @@ export function ProjectProvider({ children }) {
         tasks: data.tasks ?? [],
         tags: data.tags ?? [],
         categories: data.categories ?? [],
+        notes: [],
       });
     } catch (err) {
       await logError(err);
@@ -364,6 +365,33 @@ export function ProjectProvider({ children }) {
     [isCategoryNameValid, updateProjectDate, project?.id],
   );
 
+  const isNoteNameValid = useCallback(
+    (name, excludeId) => isNameFieldValid(project.notes, name, excludeId),
+    [project?.notes],
+  );
+
+  const addNote = useCallback(
+    (name) => {
+      const nameValid = isNoteNameValid(name);
+      if (!nameValid.valid) return null;
+      const note = {
+        name,
+        id: uuidv4(),
+        updatedAt: new Date(),
+        content: "",
+      };
+      setProject((prev) => ({ ...prev, notes: [...prev.notes, note] }));
+      updateProjectDate(project.id);
+      return note.id;
+    },
+    [isNoteNameValid, updateProjectDate, project?.id],
+  );
+
+  const getNote = useCallback(
+    (noteId) => project?.notes?.find((note) => note.id === noteId),
+    [project?.notes],
+  );
+
   const value = useProviderValueMemo({
     loading,
     error,
@@ -390,6 +418,9 @@ export function ProjectProvider({ children }) {
     getCategoryName,
     isCategoryNameValid,
     addCategory,
+    isNoteNameValid,
+    addNote,
+    getNote,
   });
 
   return (
