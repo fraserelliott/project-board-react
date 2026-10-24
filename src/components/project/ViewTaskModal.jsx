@@ -12,7 +12,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import MarkdownViewer from "../MarkdownViewer";
 import TagDisplay from "./TagDisplay";
 import ItemSelector from "../ItemSelector";
-import NewTagModal from "./NewTagModal";
+import TagModal from "./TagModal";
 import DependencyDisplay from "./DependencyDisplay";
 import { NewCategoryModal } from "./NewCategoryModal";
 
@@ -44,6 +44,7 @@ export function ViewTaskModal({ task, onOpenChange }) {
     isTaskNameValid,
     updateTask,
     addTagToTask,
+    addTag,
     removeTagFromTask,
     getAvailableDependencies,
     addDependency,
@@ -95,7 +96,9 @@ export function ViewTaskModal({ task, onOpenChange }) {
     }
   };
 
-  const handleCreateTag = (tagId) => {
+  const handleCreateTag = (tag) => {
+    const tagId = addTag(tag.name, tag.color);
+    if (!tagId) return addToastMessage("Error adding tag.", "error");
     addTagToTask(task.id, tagId);
     setDraftTagName(null);
   };
@@ -340,10 +343,10 @@ export function ViewTaskModal({ task, onOpenChange }) {
         />
       )}
       {draftTagName !== null && (
-        <NewTagModal
+        <TagModal
           open={draftTagName !== null}
           draftName={draftTagName}
-          onCreate={handleCreateTag}
+          onSubmit={handleCreateTag}
           onOpenChange={(newValue) =>
             newValue === false && setDraftTagName(null)
           }

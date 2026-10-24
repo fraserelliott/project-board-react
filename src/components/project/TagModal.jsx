@@ -9,33 +9,35 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 
-export default function NewTagModal({
+export default function TagModal({
   open,
   onOpenChange,
-  onCreate,
+  onSubmit,
   draftName = "",
+  draftColor = null,
+  tagId,
+  heading = "New Tag",
+  buttonLabel = "Create",
 }) {
   const { control, register, handleSubmit } = useForm({
     defaultValues: {
       name: draftName,
-      color: null,
+      color: draftColor,
     },
   });
   const { styleComponent } = useFEStyles();
   const [isValidName, setIsValidName] = useState(null);
-  const { isTagNameValid, addTag } = useProject();
+  const { isTagNameValid } = useProject();
   const { addToastMessage } = useToast();
 
   const createTag = (data) => {
     const name = data.name.trim();
-    const validName = isTagNameValid(name);
+    const validName = isTagNameValid(name, tagId);
     if (!validName.valid) {
       addToastMessage(validName.reason, "error");
       return setIsValidName(validName);
     }
-    const tagId = addTag(name, data.color);
-    if (!tagId) return addToastMessage("Error adding tag.", "error");
-    onCreate?.(tagId);
+    onSubmit?.({ name: data.name.trim(), id: tagId, color: data.color });
   };
 
   return (
@@ -44,7 +46,7 @@ export default function NewTagModal({
         open={open}
         onOpenChange={onOpenChange}
         showCloseButtons="corner"
-        heading="New Tag"
+        heading={heading}
         style={{
           Panel: {
             width: "400px",
@@ -107,7 +109,7 @@ export default function NewTagModal({
           <input
             type="submit"
             {...styleComponent("BtnPrimary")}
-            value="Create"
+            value={buttonLabel}
           />
         </form>
       </Modal>

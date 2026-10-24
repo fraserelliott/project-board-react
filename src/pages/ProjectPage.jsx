@@ -19,6 +19,7 @@ export default function ProjectPage() {
     updateTask,
     isBlocked,
     isStale,
+    removeTagFromTask,
   } = useProject();
   const { styleComponent } = useFEStyles();
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
@@ -87,7 +88,12 @@ export default function ProjectPage() {
               {
                 field: "tags",
                 label: "Tags",
-                renderItem: (task) => <TagDisplay tagIds={task.tagIds} />,
+                renderItem: (task) => (
+                  <TagDisplay
+                    tagIds={task.tagIds}
+                    onRemove={(tagId) => removeTagFromTask(task.id, tagId)}
+                  />
+                ),
               },
               { field: "status", label: "Status" },
               { field: "alert", label: "Alert", renderItem: renderTaskAlert },

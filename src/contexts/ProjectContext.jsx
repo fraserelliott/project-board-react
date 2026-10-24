@@ -167,6 +167,13 @@ export function ProjectProvider({ children }) {
     [updateProjectDate, project?.id],
   );
 
+  const updateTag = useCallback((tag) => {
+    setProject((prev) => ({
+      ...prev,
+      tags: prev.tags.map((t) => (t.id !== tag.id ? t : tag)),
+    }));
+  }, []);
+
   const wouldCreateCycle = useCallback(
     (taskId, dependencyId) => {
       if (taskId === dependencyId) return true;
@@ -372,6 +379,7 @@ export function ProjectProvider({ children }) {
     isTagNameValid,
     getTag,
     deleteTag,
+    updateTag,
     addDependency,
     removeDependency,
     getAvailableDependencies,
