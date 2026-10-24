@@ -28,7 +28,7 @@ export function NewTaskModal({ open, onOpenChange }) {
   };
 
   return (
-    <OptionalPortal>
+    <OptionalPortal portalTarget={document.body}>
       <Modal
         open={open}
         onOpenChange={onOpenChange}

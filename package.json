@@ -18,10 +18,13 @@
     "@tauri-apps/plugin-fs": "^2.7.1",
     "@tauri-apps/plugin-log": "^2.10.1",
     "@tauri-apps/plugin-opener": "^2",
+    "lucide-react": "^1.61.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.90.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.4",
+    "remark-gfm": "^4.0.1",
     "uuid": "^14.0.3"
   },
   "devDependencies": {

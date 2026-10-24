@@ -4,12 +4,25 @@ import { ActionTable, useFEStyles } from "@fraserelliott/fe-components";
 import { sx, utilities } from "@fraserelliott/fe-utilities";
 import { useEffect, useState } from "react";
 import { NewTaskModal } from "@/components/project/NewTaskModal";
+import { ViewTaskModal } from "@/components/project/ViewTaskModal";
+import TagDisplay from "@/components/project/TagDisplay";
+import { AlertTriangle, LockKeyhole } from "lucide-react";
 
 export default function ProjectPage() {
   const { id } = useParams();
-  const { project, loadProject, loading, error, getTag } = useProject();
+  const {
+    project,
+    loadProject,
+    loading,
+    error,
+    getTask,
+    updateTask,
+    isBlocked,
+    isStale,
+  } = useProject();
   const { styleComponent } = useFEStyles();
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
+  const [openedTaskId, setOpenedTaskId] = useState(null);
 
   useEffect(() => {
     if (!loading && !error && id && project?.id !== id) loadProject(id);
@@ -17,15 +30,44 @@ export default function ProjectPage() {
 
   if (loading || error || project?.id !== id) return null;
 
-  const renderTags = (task) => {
-    return task.tagIds.map((id) => getTag(id)?.name).join(" | ");
-  };
+  const renderStatusChangeColumn = (task) =>
+    task.status === "NotStarted"
+      ? renderStatusChangeBtn(task, "InProgress", "Start")
+      : task.status === "InProgress"
+        ? renderStatusChangeBtn(task, "Completed", "Complete")
+        : renderStatusChangeBtn(task, "InProgress", "Reopen");
+
+  const renderStatusChangeBtn = (task, newStatus, label) => (
+    <button
+      role="button"
+      {...styleComponent("BtnPrimary")}
+      onClick={() => updateTask({ ...task, status: newStatus })}
+    >
+      {label}
+    </button>
+  );
 
   const renderTasksSection = (category, extended) => {
     const filtered = project.tasks.filter(
       (task) => task.categoryId === (category?.id ?? null),
     );
     const categoryName = category?.name ?? "No Category";
+
+    const renderTaskAlert = (task) => {
+      if (isBlocked(task.id))
+        return (
+          <span color="#f87171">
+            <LockKeyhole size={16} /> Blocked
+          </span>
+        );
+
+      if (isStale(task.id))
+        return (
+          <span color="#F59E0B">
+            <AlertTriangle size={16} /> Stale
+          </span>
+        );
+    };
 
     return (
       <div
@@ -42,10 +84,39 @@ export default function ProjectPage() {
             items={filtered}
             columns={[
               { field: "name", label: "Name" },
-              { field: "tags", label: "Tags", renderItem: renderTags },
+              {
+                field: "tags",
+                label: "Tags",
+                renderItem: (task) => <TagDisplay tagIds={task.tagIds} />,
+              },
               { field: "status", label: "Status" },
+              { field: "alert", label: "Alert", renderItem: renderTaskAlert },
+              {
+                field: "action",
+                label: "Action",
+                renderItem: renderStatusChangeColumn,
+              },
             ]}
+            actions={[
+              {
+                key: 1,
+                label: "Open",
+                onAction: (task) => setOpenedTaskId(task.id),
+              },
+            ]}
+            styleRow={(item) =>
+              item.status === "Completed"
+                ? {
+                    backgroundColor: "rgba(54, 90, 73, 0.6)",
+                  }
+                : item.status === "InProgress"
+                  ? {
+                      backgroundColor: "#263C56",
+                    }
+                  : {}
+            }
             getKey={(task) => task.id}
+            separateActionColumns
           />
         )}
       </div>
@@ -82,6 +153,12 @@ export default function ProjectPage() {
         <NewTaskModal
           open={showNewTaskModal}
           onOpenChange={setShowNewTaskModal}
+        />
+      )}
+      {openedTaskId && (
+        <ViewTaskModal
+          task={getTask(openedTaskId)}
+          onOpenChange={setOpenedTaskId}
         />
       )}
     </div>

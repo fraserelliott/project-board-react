@@ -208,7 +208,7 @@ export default function ProjectsOverviewPage() {
       onAction: openProject,
     },
     {
-      key: 2,
+      key: 1,
       label: "Delete",
       onAction: setPendingDelete,
       buttonStyleSlot: "BtnDanger",

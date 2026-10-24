@@ -2,7 +2,6 @@ import {
   createContext,
   useState,
   useEffect,
-  useMemo,
   useCallback,
   useRef,
   useContext,
@@ -18,6 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 import { error as logError } from "@tauri-apps/plugin-log";
 import { useToast } from "@fraserelliott/fe-components";
 import { isNameFieldValid } from "@/util/dataUtil";
+import { useProviderValueMemo } from "@/util/hookUtil";
 
 const ProjectsContext = createContext(undefined);
 
@@ -90,6 +90,14 @@ export function ProjectsProvider({ children }) {
     ]);
   }, []);
 
+  const updateProjectDate = useCallback((id) => {
+    setProjects((prev) => [
+      ...prev.map((project) =>
+        project.id !== id ? project : { ...project, updatedAt: new Date() },
+      ),
+    ]);
+  }, []);
+
   const deleteProject = useCallback(async (id) => {
     try {
       await deleteProjectFile(id);
@@ -105,26 +113,16 @@ export function ProjectsProvider({ children }) {
     [projects],
   );
 
-  const value = useMemo(
-    () => ({
-      loading,
-      error,
-      projects,
-      addProject,
-      updateProject,
-      deleteProject,
-      isNameValid,
-    }),
-    [
-      loading,
-      error,
-      projects,
-      addProject,
-      updateProject,
-      deleteProject,
-      isNameValid,
-    ],
-  );
+  const value = useProviderValueMemo({
+    loading,
+    error,
+    projects,
+    addProject,
+    updateProject,
+    updateProjectDate,
+    deleteProject,
+    isNameValid,
+  });
 
   return (
     <ProjectsContext.Provider value={value}>
