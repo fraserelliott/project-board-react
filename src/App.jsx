@@ -9,10 +9,27 @@ import {
   ToastMessageDisplay,
 } from "@fraserelliott/fe-components";
 import Header from "./components/Header";
+import { useEffect } from "react";
 
 export default function App() {
+  useEffect(() => {
+    const preventMouseNavigation = (e) => {
+      if (e.button === 3 || e.button === 4) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("mouseup", preventMouseNavigation);
+
+    return () => {
+      window.removeEventListener("mouseup", preventMouseNavigation);
+    };
+  }, []);
+
+  // for prod, use the commented line instead
   return (
     <div className="app-layout">
+      {/* <div className="app-layout" onContextMenu={(e) => e.preventDefault()}> */}
       <HashRouter>
         <div>
           <Header />
