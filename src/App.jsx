@@ -8,17 +8,21 @@ import {
   OptionalPortal,
   ToastMessageDisplay,
 } from "@fraserelliott/fe-components";
+import Header from "./components/Header";
 
 export default function App() {
   return (
     <div className="app-layout">
       <HashRouter>
-        <main>
-          <Routes>
-            <Route path="/" element={<ProjectsOverviewPage />} />
-            <Route path="/project/:id" element={<ProjectPage />} />
-          </Routes>
-        </main>
+        <div>
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<ProjectsOverviewPage />} />
+              <Route path="/project/:id" element={<ProjectPage />} />
+            </Routes>
+          </main>
+        </div>
 
         <aside>
           <NotesPage />
