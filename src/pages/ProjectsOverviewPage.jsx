@@ -256,6 +256,7 @@ export default function ProjectsOverviewPage() {
             cancelBtnSlot="BtnPrimary"
             confirmBtnSlot="BtnDanger"
             draggable
+            closeOnEscape
           />
         </OptionalPortal>
       )}

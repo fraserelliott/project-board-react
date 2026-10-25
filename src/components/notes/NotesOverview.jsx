@@ -3,7 +3,7 @@ import { useProjects } from "@/contexts/ProjectsContext";
 import { formatTime } from "@fraserelliott/date-formatter";
 import { useFEStyles, ActionTable } from "@fraserelliott/fe-components";
 
-export default function NotesOverview({ setOpenNote }) {
+export default function NotesOverview({ setOpenNote, deleteNote }) {
   const { notes } = useProjects();
   const { project } = useProject();
   const { styleComponent } = useFEStyles();
@@ -58,6 +58,13 @@ export default function NotesOverview({ setOpenNote }) {
               onAction: (note) =>
                 setOpenNote({ source: "global", id: note.id }),
             },
+            {
+              key: 1,
+              label: "Delete",
+              onAction: (note) =>
+                deleteNote({ source: "global", id: note.id, name: note.name }),
+              buttonStyleSlot: "BtnDanger",
+            },
           ]}
           separateActionColumns
           showHeadersWhenEmpty
@@ -80,6 +87,17 @@ export default function NotesOverview({ setOpenNote }) {
                   label: "Open",
                   onAction: (note) =>
                     setOpenNote({ source: "project", id: note.id }),
+                },
+                {
+                  key: 1,
+                  label: "Delete",
+                  onAction: (note) =>
+                    deleteNote({
+                      source: "project",
+                      id: note.id,
+                      name: note.name,
+                    }),
+                  buttonStyleSlot: "BtnDanger",
                 },
               ]}
               separateActionColumns

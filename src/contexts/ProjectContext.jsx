@@ -50,7 +50,7 @@ export function ProjectProvider({ children }) {
         tasks: data.tasks ?? [],
         tags: data.tags ?? [],
         categories: data.categories ?? [],
-        notes: [],
+        notes: data.notes ?? [],
       });
     } catch (err) {
       await logError(err);
@@ -380,7 +380,7 @@ export function ProjectProvider({ children }) {
         updatedAt: new Date(),
         content: "",
       };
-      setProject((prev) => ({ ...prev, notes: [...prev.notes, note] }));
+      setProject((prev) => ({ ...prev, notes: [note, ...prev.notes] }));
       updateProjectDate(project.id);
       return note.id;
     },
@@ -391,6 +391,40 @@ export function ProjectProvider({ children }) {
     (noteId) => project?.notes?.find((note) => note.id === noteId),
     [project?.notes],
   );
+
+  const updateNote = useCallback(
+    (noteId, content, name) => {
+      const existing = getNote(noteId);
+      if (!existing) throw Error("Note not found.");
+
+      if (name !== undefined && name !== existing.name) {
+        const nameValid = isNoteNameValid(name, noteId);
+        if (!nameValid.valid) return false;
+      }
+
+      const note = {
+        ...existing,
+        content: content ?? existing.content,
+        name: name ?? existing.name,
+        updatedAt: new Date(),
+      };
+
+      setProject((prev) => ({
+        ...prev,
+        notes: [note, ...prev.notes.filter((n) => n.id !== noteId)],
+      }));
+      updateProjectDate(project.id);
+      return true;
+    },
+    [getNote, isNoteNameValid, updateProjectDate, project?.id],
+  );
+
+  const deleteNote = useCallback((noteId) => {
+    setProject((prev) => ({
+      ...prev,
+      notes: prev.notes.filter((n) => n.id !== noteId),
+    }));
+  }, []);
 
   const value = useProviderValueMemo({
     loading,
@@ -421,6 +455,8 @@ export function ProjectProvider({ children }) {
     isNoteNameValid,
     addNote,
     getNote,
+    updateNote,
+    deleteNote,
   });
 
   return (

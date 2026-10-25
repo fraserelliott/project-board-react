@@ -130,7 +130,7 @@ export function ProjectsProvider({ children }) {
         updatedAt: new Date(),
         content: "",
       };
-      setNotes((prev) => [...prev, note]);
+      setNotes((prev) => [note, ...prev]);
       return note.id;
     },
     [isNoteNameValid],
@@ -140,6 +140,33 @@ export function ProjectsProvider({ children }) {
     (noteId) => notes?.find((note) => note.id === noteId),
     [notes],
   );
+
+  const updateNote = useCallback(
+    (noteId, content, name) => {
+      const existing = getNote(noteId);
+      if (!existing) throw Error("Note not found.");
+
+      if (name !== undefined && name !== existing.name) {
+        const nameValid = isNoteNameValid(name, noteId);
+        if (!nameValid.valid) return false;
+      }
+
+      const note = {
+        ...existing,
+        content: content ?? existing.content,
+        name: name ?? existing.name,
+        updatedAt: new Date(),
+      };
+
+      setNotes((prev) => [note, ...prev.filter((n) => n.id !== noteId)]);
+      return true;
+    },
+    [getNote, isNoteNameValid],
+  );
+
+  const deleteNote = useCallback((noteId) => {
+    setNotes((prev) => prev.filter((n) => n.id !== noteId));
+  }, []);
 
   const value = useProviderValueMemo({
     loading,
@@ -154,6 +181,8 @@ export function ProjectsProvider({ children }) {
     isNoteNameValid,
     addNote,
     getNote,
+    updateNote,
+    deleteNote,
   });
 
   return (
