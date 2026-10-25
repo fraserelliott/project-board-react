@@ -13,6 +13,7 @@ export default function ItemSelector({
   showUnusedItems = false,
   getUsageCount,
   renderAbove = false,
+  disableRow = () => false,
 }) {
   const { styleComponent } = useFEStyles();
   const [open, setOpen] = useState(false);
@@ -60,15 +61,17 @@ export default function ItemSelector({
         utilities["fe-items-center"],
       )}
     >
-      <input
-        id={item.name}
-        type="checkbox"
-        checked={isSelected(item)}
-        onChange={(e) => {
-          toggleItem(item, !isSelected(item));
-        }}
-      />
-      <label htmlFor={item.name}>{item.name}</label>
+      <label style={sx(disableRow(item) && feSlateStyles.TextMuted)}>
+        <input
+          type="checkbox"
+          checked={isSelected(item)}
+          onChange={(e) => {
+            toggleItem(item, !isSelected(item));
+          }}
+          disabled={disableRow(item)}
+        />
+        {item.name}
+      </label>
     </div>
   );
 
@@ -127,7 +130,7 @@ export default function ItemSelector({
           />
           <ActionList
             items={filtered}
-            getKey={(item) => item.id}
+            getKey={(item) => item.name}
             renderItem={renderItemRow}
           />
           {onCreate && searchTerm.trim() && !exactMatchExists && (

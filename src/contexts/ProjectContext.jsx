@@ -175,6 +175,22 @@ export function ProjectProvider({ children }) {
     }));
   }, []);
 
+  const countTagUsage = useCallback(
+    (tagId) => {
+      if (!project) return 0;
+      return project.tasks.reduce(
+        (count, task) => (task.tagIds.includes(tagId) ? count + 1 : count),
+        0,
+      );
+    },
+    [project?.tasks],
+  );
+
+  const tagsInUse = useMemo(
+    () => project?.tags.filter((tag) => countTagUsage(tag.id) > 0) ?? [],
+    [project?.tags, project?.tasks],
+  );
+
   const wouldCreateCycle = useCallback(
     (taskId, dependencyId) => {
       if (taskId === dependencyId) return true;
@@ -365,6 +381,26 @@ export function ProjectProvider({ children }) {
     [isCategoryNameValid, updateProjectDate, project?.id],
   );
 
+  const countCategoryUsage = useCallback(
+    (categoryId) => {
+      if (!project) return 0;
+      return project.tasks.reduce(
+        (count, task) => (task.categoryId === categoryId ? count + 1 : count),
+        0,
+      );
+    },
+    [project?.tasks],
+  );
+
+  const categoriesInUse = useMemo(() => {
+    if (!project) return [];
+    return (
+      [...project.categories, { id: null, name: "No Category" }].filter(
+        (category) => countCategoryUsage(category.id) > 0,
+      ) ?? []
+    );
+  }, [project?.categories, project?.tasks]);
+
   const isNoteNameValid = useCallback(
     (name, excludeId) => isNameFieldValid(project.notes, name, excludeId),
     [project?.notes],
@@ -442,6 +478,8 @@ export function ProjectProvider({ children }) {
     getTag,
     deleteTag,
     updateTag,
+    countTagUsage,
+    tagsInUse,
     addDependency,
     removeDependency,
     getAvailableDependencies,
@@ -452,6 +490,8 @@ export function ProjectProvider({ children }) {
     getCategoryName,
     isCategoryNameValid,
     addCategory,
+    countCategoryUsage,
+    categoriesInUse,
     isNoteNameValid,
     addNote,
     getNote,

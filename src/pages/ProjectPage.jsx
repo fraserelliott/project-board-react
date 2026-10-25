@@ -2,11 +2,38 @@ import { useParams } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { ActionTable, useFEStyles } from "@fraserelliott/fe-components";
 import { sx, utilities } from "@fraserelliott/fe-utilities";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { NewTaskModal } from "@/components/project/NewTaskModal";
 import { ViewTaskModal } from "@/components/project/ViewTaskModal";
 import TagDisplay from "@/components/project/TagDisplay";
-import { AlertTriangle, LockKeyhole } from "lucide-react";
+import {
+  AlertTriangle,
+  LockKeyhole,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
+import ItemSelector from "@/components/ItemSelector";
+
+const allStatuses = [
+  {
+    id: 1,
+    name: "NotStarted",
+  },
+  {
+    id: 2,
+    name: "InProgress",
+  },
+  {
+    id: 3,
+    name: "Completed",
+  },
+];
+
+function getStatusId(status) {
+  return allStatuses.find((s) => s.name === status).id;
+}
+
+const uncategorisedObj = { id: null, name: "No Category" };
 
 export default function ProjectPage() {
   const { id } = useParams();
@@ -20,16 +47,81 @@ export default function ProjectPage() {
     isBlocked,
     isStale,
     removeTagFromTask,
+    tagsInUse,
+    countCategoryUsage,
+    categoriesInUse,
   } = useProject();
   const { styleComponent } = useFEStyles();
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [openedTaskId, setOpenedTaskId] = useState(null);
+  const [visibleStatuses, setVisibleStatuses] = useState(
+    allStatuses.map((s) => s.id),
+  );
+  const [selectedTagIds, setSelectedTagIds] = useState([]);
+  const [expandedCategories, setExpandedCategories] = useState(
+    categoriesInUse.map((c) => c.id),
+  );
 
   useEffect(() => {
     if (!loading && !error && id && project?.id !== id) loadProject(id);
   }, [id, project?.id, loading, error, loadProject]);
 
+  useEffect(() => {
+    const availableIds = tagsInUse.map((tag) => tag.id);
+
+    setSelectedTagIds((prev) => prev.filter((id) => availableIds.includes(id)));
+  }, [tagsInUse]);
+
+  const previousCategoriesInUse = useRef([]);
+
+  useEffect(() => {
+    const previous = previousCategoriesInUse.current;
+
+    const changed =
+      previous.length !== categoriesInUse.length ||
+      previous.some((id) => !categoriesInUse.includes(id));
+
+    if (changed) {
+      setExpandedCategories(categoriesInUse.map((c) => c.id));
+    }
+
+    previousCategoriesInUse.current = categoriesInUse;
+  }, [categoriesInUse]);
+
   if (loading || error || project?.id !== id) return null;
+
+  const handleVisibleTagChange = (tag, newValue) => {
+    const tagId = tag.id;
+    if (newValue) setSelectedTagIds((prev) => [...prev, tagId]);
+    else setSelectedTagIds((prev) => prev.filter((t) => t !== tagId));
+  };
+
+  const handleVisibleStatusChange = (status, newValue) => {
+    const statusId = status.id;
+    if (newValue) setVisibleStatuses((prev) => [...prev, statusId]);
+    else setVisibleStatuses((prev) => prev.filter((s) => s !== statusId));
+  };
+
+  const handleExpandedChange = (category, newValue) => {
+    const categoryId = category.id;
+    if (!countCategoryUsage(categoryId)) return;
+    if (newValue) setExpandedCategories((prev) => [...prev, categoryId]);
+    else setExpandedCategories((prev) => prev.filter((c) => c !== categoryId));
+  };
+
+  const handleShowAll = () => {
+    setExpandedCategories(categoriesInUse.map((category) => category.id));
+    setVisibleStatuses(allStatuses.map((status) => status.id));
+    setSelectedTagIds([]);
+  };
+
+  const filteredTasks = project.tasks
+    .filter((task) => visibleStatuses.includes(getStatusId(task.status)))
+    .filter(
+      (task) =>
+        selectedTagIds.length === 0 ||
+        task.tagIds.some((id) => selectedTagIds.includes(id)),
+    );
 
   const renderStatusChangeColumn = (task) =>
     task.status === "NotStarted"
@@ -48,11 +140,12 @@ export default function ProjectPage() {
     </button>
   );
 
-  const renderTasksSection = (category, extended) => {
-    const filtered = project.tasks.filter(
+  const renderTasksSection = (category) => {
+    const expanded = expandedCategories.includes(category.id);
+
+    const filtered = filteredTasks.filter(
       (task) => task.categoryId === (category?.id ?? null),
     );
-    const categoryName = category?.name ?? "No Category";
 
     const renderTaskAlert = (task) => {
       if (isBlocked(task.id))
@@ -77,10 +170,17 @@ export default function ProjectPage() {
           utilities["fe-d-flex"],
           utilities["fe-flex-column"],
           utilities["fe-gap-1"],
+          { paddingBottom: "0.5em", borderBottom: "1px solid #475569" },
         )}
       >
-        <h2>{`${categoryName} (${filtered.length})`}</h2>
-        {extended && (
+        <h2
+          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          onClick={() => handleExpandedChange(category, !expanded)}
+        >
+          {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+          {`${category.name} (${countCategoryUsage(category.id)})`}
+        </h2>
+        {expanded && (
           <ActionTable
             items={filtered}
             columns={[
@@ -138,18 +238,51 @@ export default function ProjectPage() {
         utilities["fe-gap-3"],
       )}
     >
-      <div>
-        <button
-          {...styleComponent("BtnPrimary")}
-          onClick={() => setShowNewTaskModal(true)}
+      <div style={sx(utilities["fe-d-flex"], utilities["fe-justify-between"])}>
+        <div>
+          <button
+            {...styleComponent("BtnPrimary")}
+            onClick={() => setShowNewTaskModal(true)}
+          >
+            Add Task
+          </button>
+        </div>
+
+        <div
+          style={sx(
+            utilities["fe-d-flex"],
+            utilities["fe-gap-2"],
+            utilities["fe-items-center"],
+          )}
         >
-          Add Task
-        </button>
+          <ItemSelector
+            allItems={[...project.categories, uncategorisedObj]}
+            buttonText="Expand Categories"
+            selectedIds={expandedCategories}
+            onChange={handleExpandedChange}
+            disableRow={(item) => countCategoryUsage(item.id) === 0}
+          />
+          <ItemSelector
+            allItems={allStatuses}
+            buttonText="Filter Statuses"
+            selectedIds={visibleStatuses}
+            onChange={handleVisibleStatusChange}
+          />
+          <ItemSelector
+            allItems={tagsInUse}
+            buttonText="Filter Tags"
+            selectedIds={selectedTagIds}
+            onChange={handleVisibleTagChange}
+          />
+          <button onClick={handleShowAll} {...styleComponent("BtnPrimary")}>
+            Show All
+          </button>
+        </div>
       </div>
       <div {...styleComponent("Panel")}>
         {project?.tasks?.length > 0 ? (
-          [...project.categories, null].map((category) =>
-            renderTasksSection(category, true),
+          [...project.categories, uncategorisedObj].map((category) =>
+            renderTasksSection(category),
           )
         ) : (
           <h1>No tasks. Add your first task to get started.</h1>
