@@ -41,7 +41,6 @@ export default function ItemSelector({
   const isSelected = (item) => selectedIds.some((v) => v === item.id);
   const toggleItem = (item, newValue) => onChange?.(item, newValue);
 
-  // TODO: tag and category usage count
   const filtered = allItems
     .filter(
       (item) =>

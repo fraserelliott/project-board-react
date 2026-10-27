@@ -1,12 +1,14 @@
 import { useProject } from "@/contexts/ProjectContext";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { formatTime } from "@fraserelliott/date-formatter";
+import { useSettings } from "@/contexts/SettingsContext";
 import { useFEStyles, ActionTable } from "@fraserelliott/fe-components";
 
 export default function NotesOverview({ setOpenNote, deleteNote }) {
   const { notes } = useProjects();
   const { project } = useProject();
   const { styleComponent } = useFEStyles();
+  const { formatTimestamp } = useSettings();
 
   const renderLastUpdated = (note) => {
     const updated = new Date(note.updatedAt);

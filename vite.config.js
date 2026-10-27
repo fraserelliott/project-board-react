@@ -36,7 +36,9 @@ export default defineConfig(() => ({
       ],
     },
   },
+  base: "./",
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve("src"),
       "@contexts": path.resolve("src/contexts"),

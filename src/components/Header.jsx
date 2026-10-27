@@ -10,8 +10,12 @@ export default function Header() {
 
   const navLinks = [
     { to: "/", label: "Projects" },
-    ...(project ? [{ to: `/project/${project.id}`, label: project.name }] : []),
-    { to: "/settings", label: "Settings" },
+    ...(project
+      ? [
+          { to: `/project/${project.id}`, label: project.name },
+          { to: "/tags", label: "Tags" },
+        ]
+      : []),
   ];
 
   const renderPageLink = (page) => {

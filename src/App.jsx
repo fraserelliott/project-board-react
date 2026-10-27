@@ -10,6 +10,7 @@ import {
 } from "@fraserelliott/fe-components";
 import Header from "./components/Header";
 import { useEffect } from "react";
+import TagsPage from "./pages/TagsPage";
 
 export default function App() {
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<ProjectsOverviewPage />} />
               <Route path="/project/:id" element={<ProjectPage />} />
+              <Route path="/tags" element={<TagsPage />} />
             </Routes>
           </main>
         </div>
