@@ -11,6 +11,7 @@ import {
 import Header from "./components/Header";
 import { useEffect } from "react";
 import TagsPage from "./pages/TagsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 
 export default function App() {
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function App() {
               <Route path="/" element={<ProjectsOverviewPage />} />
               <Route path="/project/:id" element={<ProjectPage />} />
               <Route path="/tags" element={<TagsPage />} />
+              <Route path="/categories" element={<CategoriesPage />} />
             </Routes>
           </main>
         </div>

@@ -14,6 +14,7 @@ export default function Header() {
       ? [
           { to: `/project/${project.id}`, label: project.name },
           { to: "/tags", label: "Tags" },
+          { to: "/categories", label: "Categories" },
         ]
       : []),
   ];

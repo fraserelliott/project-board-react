@@ -30,7 +30,7 @@ export default function TagModal({
   const { isTagNameValid } = useProject();
   const { addToastMessage } = useToast();
 
-  const createTag = (data) => {
+  const handleForm = (data) => {
     const name = data.name.trim();
     const validName = isTagNameValid(name, tagId);
     if (!validName.valid) {
@@ -59,7 +59,7 @@ export default function TagModal({
         closeOnEscape
       >
         <form
-          onSubmit={handleSubmit(createTag)}
+          onSubmit={handleSubmit(handleForm)}
           style={sx(
             utilities["fe-d-flex"],
             utilities["fe-flex-column"],

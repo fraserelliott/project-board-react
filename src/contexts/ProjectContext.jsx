@@ -187,7 +187,8 @@ export function ProjectProvider({ children }) {
   );
 
   const tagsInUse = useMemo(
-    () => project?.tags.filter((tag) => countTagUsage(tag.id) > 0) ?? [],
+    () =>
+      (project?.tags ?? []).filter((tag) => countTagUsage(tag.id) > 0) ?? [],
     [project?.tags, project?.tasks],
   );
 
@@ -392,6 +393,32 @@ export function ProjectProvider({ children }) {
     [project?.tasks],
   );
 
+  const deleteCategory = useCallback(
+    (id) => {
+      setProject((prev) => ({
+        ...prev,
+        categories: prev.categories.filter((category) => category.id !== id),
+        tasks: prev.tasks.map((task) => ({
+          ...task,
+          categoryId: task.categoryId === id ? null : task.categoryId,
+        })),
+      }));
+      updateProjectDate(project.id);
+    },
+    [project?.id, updateProjectDate],
+  );
+
+  const updateCategory = useCallback((categoryId, name) => {
+    console.log("categoryId", categoryId);
+    console.log("name", name);
+    setProject((prev) => ({
+      ...prev,
+      categories: prev.categories.map((category) =>
+        category.id === categoryId ? { id: categoryId, name } : category,
+      ),
+    }));
+  }, []);
+
   const categoriesInUse = useMemo(() => {
     if (!project) return [];
     return (
@@ -492,6 +519,8 @@ export function ProjectProvider({ children }) {
     addCategory,
     countCategoryUsage,
     categoriesInUse,
+    deleteCategory,
+    updateCategory,
     isNoteNameValid,
     addNote,
     getNote,

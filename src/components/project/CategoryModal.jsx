@@ -9,23 +9,30 @@ import { sx, utilities } from "@fraserelliott/fe-utilities";
 import { useState } from "react";
 import { useProject } from "@/contexts/ProjectContext";
 
-export function NewCategoryModal({ open, onCreate, onOpenChange }) {
-  const { register, handleSubmit } = useForm();
+export function CategoryModal({
+  open,
+  onSubmit,
+  onOpenChange,
+  draftName = "",
+  categoryId,
+  buttonLabel = "Create",
+}) {
+  const { register, handleSubmit } = useForm({
+    defaultValues: { name: draftName },
+  });
   const { styleComponent } = useFEStyles();
   const [isValidName, setIsValidName] = useState(null);
-  const { isCategoryNameValid, addCategory } = useProject();
+  const { isCategoryNameValid } = useProject();
   const { addToastMessage } = useToast();
 
-  const createCategory = (data) => {
+  const handleForm = (data) => {
     const name = data.name.trim();
-    const validName = isCategoryNameValid(name);
+    const validName = isCategoryNameValid(name, categoryId);
     if (!validName.valid) {
       addToastMessage(validName.reason, "error");
       return setIsValidName(validName);
     }
-    const categoryId = addCategory(name);
-    onCreate?.(categoryId);
-    onOpenChange(false);
+    onSubmit?.(name);
   };
 
   return (
@@ -47,7 +54,7 @@ export function NewCategoryModal({ open, onCreate, onOpenChange }) {
         }}
       >
         <form
-          onSubmit={handleSubmit(createCategory)}
+          onSubmit={handleSubmit(handleForm)}
           style={sx(
             utilities["fe-d-flex"],
             utilities["fe-flex-column"],
@@ -63,7 +70,9 @@ export function NewCategoryModal({ open, onCreate, onOpenChange }) {
               onChange: () => setIsValidName(null),
               onBlur: (event) =>
                 event.target.value.trim() !== "" &&
-                setIsValidName(isCategoryNameValid(event.target.value)),
+                setIsValidName(
+                  isCategoryNameValid(event.target.value, categoryId),
+                ),
             })}
           />
           <div style={{ height: "1.5em" }}>
@@ -77,7 +86,7 @@ export function NewCategoryModal({ open, onCreate, onOpenChange }) {
           <input
             type="submit"
             {...styleComponent("BtnPrimary")}
-            value="Create"
+            value={buttonLabel}
           />
         </form>
       </Modal>

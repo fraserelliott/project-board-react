@@ -14,7 +14,7 @@ import TagDisplay from "./TagDisplay";
 import ItemSelector from "../ItemSelector";
 import TagModal from "./TagModal";
 import DependencyDisplay from "./DependencyDisplay";
-import { NewCategoryModal } from "./NewCategoryModal";
+import { CategoryModal } from "./CategoryModal";
 
 const formRow = sx(
   utilities["fe-d-flex"],
@@ -50,6 +50,7 @@ export function ViewTaskModal({ task, onOpenChange }) {
     addDependency,
     removeDependency,
     getCategoryName,
+    addCategory,
   } = useProject();
   const [draftTagName, setDraftTagName] = useState(null);
 
@@ -101,6 +102,12 @@ export function ViewTaskModal({ task, onOpenChange }) {
     if (!tagId) return addToastMessage("Error adding tag.", "error");
     addTagToTask(task.id, tagId);
     setDraftTagName(null);
+  };
+
+  const handleCreateCategory = (name) => {
+    const id = addCategory(name);
+    setCategory(id);
+    setShowCategoryModal(false);
   };
 
   const handleTagChange = (tag, newValue) => {
@@ -353,9 +360,9 @@ export function ViewTaskModal({ task, onOpenChange }) {
         />
       )}
       {showCategoryModal && (
-        <NewCategoryModal
+        <CategoryModal
           open={showCategoryModal}
-          onCreate={setCategory}
+          onSubmit={handleCreateCategory}
           onOpenChange={setShowCategoryModal}
         />
       )}

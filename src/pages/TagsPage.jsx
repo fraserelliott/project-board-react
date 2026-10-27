@@ -8,7 +8,7 @@ import {
 } from "@fraserelliott/fe-components";
 import { utilities, sx } from "@fraserelliott/fe-utilities";
 import { feSlateStyles } from "@fraserelliott/fe-slate";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import TagModal from "@/components/project/TagModal";
 
 export default function TagsPage() {
@@ -26,9 +26,11 @@ export default function TagsPage() {
     );
   }, [project?.tags]);
 
-  if (loading || error) return null;
+  useEffect(() => {
+    if (!loading && !error && !project) navigate("/");
+  }, [loading, error, project]);
 
-  if (!project) navigate("/");
+  if (loading || error) return null;
 
   const handleDelete = () => {
     deleteTag(pendingDelete.id);
