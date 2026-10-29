@@ -72,7 +72,7 @@ export default function ProjectsOverviewPage() {
 
   const saveEdit = (data) => {
     const name = data.name.trim();
-    const validName = isNameValid(name);
+    const validName = isNameValid(name, editingId);
     if (!validName.valid) {
       addToastMessage(validName.reason, "error");
       return setIsValidName(validName);

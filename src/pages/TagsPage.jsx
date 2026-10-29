@@ -95,13 +95,17 @@ export default function TagsPage() {
   return (
     <div style={utilities["fe-p-3"]}>
       <div {...styleComponent("Panel")}>
-        <ActionTable
-          columns={columns}
-          getKey={(tag) => tag.id}
-          items={sortedTags}
-          actions={actions}
-          separateActionColumns
-        />
+        {sortedTags.length > 0 ? (
+          <ActionTable
+            columns={columns}
+            getKey={(tag) => tag.id}
+            items={sortedTags}
+            actions={actions}
+            separateActionColumns
+          />
+        ) : (
+          <p>This project doesn't have any tags yet.</p>
+        )}
       </div>
       {tagModalData && (
         <TagModal

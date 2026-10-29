@@ -76,13 +76,17 @@ export default function CategoriesPage() {
   return (
     <div style={utilities["fe-p-3"]}>
       <div {...styleComponent("Panel")}>
-        <ActionTable
-          columns={columns}
-          getKey={(category) => category.id}
-          items={stortedCategories}
-          actions={actions}
-          separateActionColumns
-        />
+        {stortedCategories.length > 0 ? (
+          <ActionTable
+            columns={columns}
+            getKey={(category) => category.id}
+            items={stortedCategories}
+            actions={actions}
+            separateActionColumns
+          />
+        ) : (
+          <p>This project doesn't have any categories yet.</p>
+        )}
       </div>
       {categoryModalData && (
         <CategoryModal

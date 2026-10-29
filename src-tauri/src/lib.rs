@@ -1,3 +1,5 @@
+use tauri::Manager;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -15,6 +17,13 @@ pub fn run() {
                 )])
                 .build(),
         )
+        .setup(|app| {
+            let window = app.get_webview_window("main").unwrap();
+
+            window.set_icon(tauri::include_image!("icons/128x128.png"))?;
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

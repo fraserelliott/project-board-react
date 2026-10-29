@@ -1,8 +1,8 @@
 [package]
 name = "project-board"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "0.2.0"
+description = "A desktop program for organising tasks and notes"
+authors = ["Fraser Elliott"]
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

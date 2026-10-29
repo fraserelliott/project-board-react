@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@fraserelliott/date-formatter": "^1.1.0",
-    "@fraserelliott/fe-components": "^0.3.2",
-    "@fraserelliott/fe-slate": "^0.2.1",
+    "@fraserelliott/fe-components": "^0.3.3",
+    "@fraserelliott/fe-slate": "^0.2.2",
     "@fraserelliott/fe-utilities": "^0.4.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-fs": "^2.7.1",
