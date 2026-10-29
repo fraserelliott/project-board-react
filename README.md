@@ -6,6 +6,12 @@ It provides a lightweight way to break projects into manageable tasks, track pro
 
 The application is designed for local use, without requiring an account or an external project management service.
 
+## Screenshots
+
+<img width="1920" height="1080" alt="Screenshot_20261029_190844" src="https://github.com/user-attachments/assets/e971e00c-2e9d-4e74-a249-4c920fd91166" />
+<img width="1920" height="1080" alt="Screenshot_20261029_190905" src="https://github.com/user-attachments/assets/bcc5a074-b36e-4378-97a5-37e11b710022" />
+
+
 ## Features
 
 ### Project Management
