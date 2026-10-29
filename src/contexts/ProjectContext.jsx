@@ -19,6 +19,17 @@ import { useProjects } from "./ProjectsContext";
 
 const ProjectContext = createContext(undefined);
 
+function createTask(name) {
+  return {
+    name,
+    id: uuidv4(),
+    categoryId: null,
+    tagIds: [],
+    status: "NotStarted",
+    dependencyIds: [],
+  };
+}
+
 export function ProjectProvider({ children }) {
   const [project, setProject] = useState(null);
   const saveQueue = useRef(Promise.resolve());
@@ -70,19 +81,24 @@ export function ProjectProvider({ children }) {
     (name) => {
       const nameValid = isTaskNameValid(name);
       if (!nameValid.valid) return null;
-      const task = {
-        name,
-        id: uuidv4(),
-        categoryId: null,
-        tagIds: [],
-        status: "NotStarted",
-        dependencyIds: [],
-      };
+      const task = createTask(name);
       setProject((prev) => ({ ...prev, tasks: [...prev.tasks, task] }));
       updateProjectDate(project.id);
       return task.id;
     },
     [updateProjectDate, isTaskNameValid, project?.id],
+  );
+
+  const bulkCreateTasks = useCallback(
+    (names) => {
+      const newTasks = names.map((name) => createTask(name));
+
+      setProject((prev) => ({
+        ...prev,
+        tasks: [...newTasks, ...prev.tasks],
+      }));
+    },
+    [updateProjectDate, project?.id],
   );
 
   const updateTask = useCallback(
@@ -102,6 +118,25 @@ export function ProjectProvider({ children }) {
   const getTask = useCallback(
     (taskId) => project?.tasks?.find((task) => task.id === taskId),
     [project?.tasks],
+  );
+
+  const deleteTask = useCallback(
+    (id) => {
+      setProject((prev) => ({
+        ...prev,
+        tasks: prev.tasks
+          .filter((task) => task.id !== id)
+          .map((task) => ({
+            ...task,
+            dependencyIds: task.dependencyIds.filter(
+              (dependencyId) => dependencyId !== id,
+            ),
+          })),
+      }));
+
+      updateProjectDate(project.id);
+    },
+    [updateProjectDate, project?.id],
   );
 
   const isTagNameValid = useCallback(
@@ -434,14 +469,14 @@ export function ProjectProvider({ children }) {
   );
 
   const addNote = useCallback(
-    (name) => {
+    (name, content = "") => {
       const nameValid = isNoteNameValid(name);
       if (!nameValid.valid) return null;
       const note = {
         name,
         id: uuidv4(),
         updatedAt: new Date(),
-        content: "",
+        content,
       };
       setProject((prev) => ({ ...prev, notes: [note, ...prev.notes] }));
       updateProjectDate(project.id);
@@ -495,9 +530,11 @@ export function ProjectProvider({ children }) {
     project,
     loadProject,
     addTask,
+    bulkCreateTasks,
     isTaskNameValid,
     updateTask,
     getTask,
+    deleteTask,
     addTag,
     addTagToTask,
     removeTagFromTask,

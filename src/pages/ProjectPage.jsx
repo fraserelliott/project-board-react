@@ -1,6 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
-import { ActionTable, useFEStyles } from "@fraserelliott/fe-components";
+import {
+  ActionTable,
+  useFEStyles,
+  OptionalPortal,
+  ConfirmDialog,
+} from "@fraserelliott/fe-components";
 import { sx, utilities } from "@fraserelliott/fe-utilities";
 import { useEffect, useState, useRef } from "react";
 import { NewTaskModal } from "@/components/project/NewTaskModal";
@@ -13,6 +18,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import ItemSelector from "@/components/ItemSelector";
+import ImportTasksModal from "@/components/project/ImportTasksModal";
 
 const allStatuses = [
   {
@@ -50,9 +56,11 @@ export default function ProjectPage() {
     tagsInUse,
     countCategoryUsage,
     categoriesInUse,
+    deleteTask,
   } = useProject();
   const { styleComponent } = useFEStyles();
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [openedTaskId, setOpenedTaskId] = useState(null);
   const [visibleStatuses, setVisibleStatuses] = useState(
     allStatuses.map((s) => s.id),
@@ -61,6 +69,7 @@ export default function ProjectPage() {
   const [expandedCategories, setExpandedCategories] = useState(
     categoriesInUse.map((c) => c.id),
   );
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   useEffect(() => {
     if (!loading && !error && id && project?.id !== id) loadProject(id);
@@ -89,6 +98,11 @@ export default function ProjectPage() {
   }, [categoriesInUse]);
 
   if (loading || error || project?.id !== id) return null;
+
+  const handleDelete = () => {
+    deleteTask(pendingDelete.id);
+    setPendingDelete(null);
+  };
 
   const handleVisibleTagChange = (tag, newValue) => {
     const tagId = tag.id;
@@ -209,6 +223,12 @@ export default function ProjectPage() {
                 label: "Open",
                 onAction: (task) => setOpenedTaskId(task.id),
               },
+              {
+                key: 2,
+                label: "Delete",
+                buttonStyleSlot: "BtnDanger",
+                onAction: setPendingDelete,
+              },
             ]}
             styleRow={(item) =>
               item.status === "Completed"
@@ -239,12 +259,18 @@ export default function ProjectPage() {
       )}
     >
       <div style={sx(utilities["fe-d-flex"], utilities["fe-justify-between"])}>
-        <div>
+        <div style={sx(utilities["fe-d-flex"], utilities["fe-gap-2"])}>
           <button
             {...styleComponent("BtnPrimary")}
             onClick={() => setShowNewTaskModal(true)}
           >
             Add Task
+          </button>
+          <button
+            {...styleComponent("BtnPrimary")}
+            onClick={() => setShowImportModal(true)}
+          >
+            Import Tasks
           </button>
         </div>
 
@@ -299,6 +325,39 @@ export default function ProjectPage() {
           task={getTask(openedTaskId)}
           onOpenChange={setOpenedTaskId}
         />
+      )}
+      {showImportModal && (
+        <ImportTasksModal
+          open={showImportModal}
+          onOpenChange={setShowImportModal}
+        />
+      )}
+      {pendingDelete && (
+        <OptionalPortal>
+          <ConfirmDialog
+            open={pendingDelete !== null}
+            onConfirm={() => handleDelete()}
+            heading={pendingDelete.name}
+            onOpenChange={(newValue) =>
+              newValue === false && setPendingDelete(null)
+            }
+            text="Are you sure you want to delete this task? This cannot be undone."
+            confirmLabel="Delete"
+            style={{
+              Panel: {
+                width: "15rem",
+                justifyContent: "center",
+                alignItems: "center",
+                border: "1px solid rgba(59, 130, 246, 0.8)",
+              },
+            }}
+            overlay={true}
+            cancelBtnSlot="BtnPrimary"
+            confirmBtnSlot="BtnDanger"
+            draggable
+            closeOnEscape
+          />
+        </OptionalPortal>
       )}
     </div>
   );
