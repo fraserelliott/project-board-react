@@ -23,6 +23,14 @@ export default function App() {
 
     window.addEventListener("mouseup", preventMouseNavigation);
 
+    document.addEventListener("contextmenu", (event) => {
+      if (event.target.closest("input, textarea, [contenteditable]")) {
+        return;
+      }
+
+      event.preventDefault();
+    });
+
     return () => {
       window.removeEventListener("mouseup", preventMouseNavigation);
     };
